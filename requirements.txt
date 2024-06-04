@@ -1,4 +1,4 @@
-july==0.1.3
+calplot==0.1.7.5
 matplotlib==3.9.0
 numpy==1.26.4
 pandas==2.2.2
