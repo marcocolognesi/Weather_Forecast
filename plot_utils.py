@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import calplot
@@ -278,3 +279,52 @@ def plot_variable_eda(dataset: pd.DataFrame, variable_to_plot: str,
     plot_variable_calendar(
         dataset=dataset, variable_to_plot=variable_to_plot
     )
+
+
+def plot_amplitude_spectrum(variable_to_plot: str, frequency_vector: np.ndarray,
+                            peaks: np.ndarray, xlim: float) -> None:
+    """Plot a double-sided and zoomed amplitude spectrum of a signal using
+    Fast Fourier Transform (FFT) results.
+
+    Args:
+        variable_to_plot (str): Name of the variable (signal) used for spectrum analysis.
+        frequency_vector (np.ndarray): NumPy array containing frequency values.
+        peaks (np.ndarray): NumPy array containing the corresponding FFT amplitude values.
+        xlim (float): Upper limit for the zoomed spectrum x-axis.
+    """
+    # plotting
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 5), tight_layout=True)
+    fig.suptitle(f'Amplitude Spectrum ["{variable_to_plot}"]', weight='bold')
+
+    # Complete version (double sided)
+    axes[0].set_title('Double Sided FFT')
+    axes[0].stem(frequency_vector, peaks, 'b', basefmt="-b")
+    axes[0].set_xlabel('Frequency')
+    axes[0].set_ylabel('FFT Amplitude |X(freq)|')
+
+    # Zoom version
+    axes[1].set_title(f'Zoom (0, {xlim})')
+    axes[1].stem(frequency_vector, peaks, 'b', basefmt="-b")
+    axes[1].set_xlabel('Frequency')
+    axes[1].set_xlim(0, xlim)
+    plt.show()
+
+
+def plot_periodgram(variable_to_plot: str, f_per_density, Pxx_per_density,
+                    xlim: float) -> None:
+    """Plot the power spectral density (PSD) of a signal using a periodogram.
+
+    Args:
+        variable_to_plot (str): Name of the variable (signal) used for spectrum analysis.
+        f_per_density (_type_): NumPy array containing the frequency values.
+        Pxx_per_density (_type_): NumPy array containing the corresponding PSD values.
+        xlim (float): Upper limit for the zoomed spectrum x-axis.
+    """
+    # plot
+    plt.figure(figsize=(10, 5), tight_layout=True)
+    plt.plot(f_per_density, Pxx_per_density)
+    plt.title(f'Periodogram - Density ["{variable_to_plot}" - Zoom({xlim})]', weight='bold')
+    plt.ylabel('PSD')
+    plt.xlim(0, xlim)
+    plt.xlabel('Frequency')
+    plt.show()
