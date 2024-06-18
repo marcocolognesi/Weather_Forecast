@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from scipy import signal
 
 
 def find_IQR_outliers(dataset: pd.DataFrame, variable_to_analyze: str) -> list:
@@ -70,3 +71,15 @@ def update_year_dfs(total_dataset: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataF
     # 2016
     df_2016 = total_dataset.loc[total_dataset.index.year == 2016]
     return df_2013, df_2014, df_2015, df_2016
+
+
+def find_frequency_peaks(Pxx_per_density, f_per_density) -> pd.DataFrame:
+    # Finding frequency peaks
+    peaks = signal.find_peaks(Pxx_per_density[f_per_density >= 0], prominence=6000)[0]
+    peak_freq = f_per_density[peaks]
+    peak_power = Pxx_per_density[peaks]
+
+    # creating pd.DataFrame for better visual
+    table = {'Freq': peak_freq, 'Period': 1/peak_freq, 'Power': peak_power}
+    tab = pd.DataFrame(table)
+    return tab
