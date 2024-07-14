@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy import signal
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error, root_mean_squared_error
 
 
 def find_IQR_outliers(dataset: pd.DataFrame, variable_to_analyze: str) -> list:
@@ -83,3 +84,27 @@ def find_frequency_peaks(Pxx_per_density, f_per_density) -> pd.DataFrame:
     table = {'Freq': peak_freq, 'Period': 1/peak_freq, 'Power': peak_power}
     tab = pd.DataFrame(table)
     return tab
+
+
+def compute_mae(y_test, preds):
+    return mean_absolute_error(y_test, preds)
+
+
+def compute_mse(y_test, preds):
+    return mean_squared_error(y_test, preds)
+
+
+def compute_rmse(y_test, preds):
+    return root_mean_squared_error(y_test, preds)
+
+
+def compute_r2(y_test, preds):
+    return r2_score(y_test, preds) 
+
+
+def compute_metrics(y_test, preds):
+    mae = compute_mae(y_test, preds)
+    mse = compute_mse(y_test, preds)
+    rmse = compute_rmse(y_test, preds)
+    r2 = compute_r2(y_test, preds)
+    return mae, mse, rmse, r2
