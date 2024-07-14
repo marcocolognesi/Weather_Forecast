@@ -1,8 +1,10 @@
 import pandas as pd
 import numpy as np
+import statsmodels.api as sm
 import matplotlib.pyplot as plt
 import seaborn as sns
 import calplot
+from statsmodels.graphics.tsaplots import plot_acf
 
 
 def plot_variable_trend(dataset: pd.DataFrame, variable_to_plot: str) -> None:
@@ -327,4 +329,96 @@ def plot_periodgram(variable_to_plot: str, f_per_density, Pxx_per_density,
     plt.ylabel('PSD')
     plt.xlim(0, xlim)
     plt.xlabel('Frequency')
+    plt.show()
+
+
+def plot_overall_train_test_preds(title: str, train_data, test_data,
+                                  y_train, y_test, predictions, predictions_df,
+                                  lower_ci, upper_ci):
+    # Plotting predictions vs actual values (show also train data)
+    plt.figure(figsize=(15,3), tight_layout=True)
+    plt.title(f"{title}", weight="bold")
+
+    plt.plot(train_data.index, y_train, label='train')
+    plt.plot(test_data.index, y_test, 'k',label='test')
+    plt.plot(test_data.index, predictions, 'r', label='predictions')
+
+    plt.axvline(test_data.index[0], linestyle='dashed', color='k')
+    plt.fill_between(test_data.index, predictions_df[lower_ci], predictions_df[upper_ci], alpha=.1, color='crimson',label='prediction int.')
+
+    plt.xlabel('date')
+    plt.ylabel('meantemp')
+    plt.legend(loc='lower left')
+    plt.show()
+
+
+def plot_actual_vs_preds(test_data, y_test, predictions,
+                         predictions_df, lower_ci, upper_ci):
+    # Plotting predictions vs actual values (focus only on test data)
+    plt.figure(figsize=(15,3), tight_layout=True)
+    plt.title(f"Actual vs Prediction", weight="bold")
+
+    plt.plot(test_data.index, y_test, 'ko-' ,label='test')
+    plt.plot(test_data.index, predictions, 'ro-', label='predictions')
+
+    plt.fill_between(test_data.index, predictions_df[lower_ci], predictions_df[upper_ci], alpha=.1, color='crimson',label='prediction int.')
+
+    plt.xlabel('date')
+    plt.ylabel('meantemp')
+    plt.legend(loc='upper left')
+    plt.show()
+
+
+def plot_residual_analysis(train: bool, title: str, residuals, y_train, y_test):
+    # Training Residuals
+    fig, ax = plt.subplots(nrows=2, ncols=3, figsize=(15,5))
+
+    if train:
+        fig.suptitle(f'Residual Analysis - Training Dataset {title}', weight='bold')
+    else:
+        fig.suptitle(f'Residual Analysis - Test Dataset {title}', weight='bold')
+    
+    ax[0,0].plot(residuals)
+    
+    plot_acf(residuals, ax=ax[0,1])
+    
+    sns.histplot(residuals, kde=True, stat='density', ax=ax[0,2])
+    
+    sns.boxplot(x=residuals, ax=ax[1,0], showmeans=True)
+
+    sm.qqplot(residuals, line='q', ax=ax[1,1])
+
+    sns.residplot(y=residuals, x=y_train if train else y_test, lowess=True, ax=ax[1,2])
+    plt.show()
+
+
+def plot_overall_train_test_preds_no_ci(title: str, train_data, test_data,
+                                  y_train, y_test, predictions):
+    # Plotting predictions vs actual values (show also train data)
+    plt.figure(figsize=(15,3), tight_layout=True)
+    plt.title(f"{title}", weight="bold")
+
+    plt.plot(train_data.index, y_train, label='train')
+    plt.plot(test_data.index, y_test, 'k',label='test')
+    plt.plot(test_data.index, predictions, 'r', label='predictions')
+
+    plt.axvline(test_data.index[0], linestyle='dashed', color='k')
+
+    plt.xlabel('date')
+    plt.ylabel('meantemp')
+    plt.legend(loc='lower left')
+    plt.show()
+
+
+def plot_actual_vs_preds_no_ci(test_data, y_test, predictions):
+    # Plotting predictions vs actual values (focus only on test data)
+    plt.figure(figsize=(15,3), tight_layout=True)
+    plt.title(f"Actual vs Prediction", weight="bold")
+
+    plt.plot(test_data.index, y_test, 'ko-' ,label='test')
+    plt.plot(test_data.index, predictions, 'ro-', label='predictions')
+
+    plt.xlabel('date')
+    plt.ylabel('meantemp')
+    plt.legend(loc='upper left')
     plt.show()
